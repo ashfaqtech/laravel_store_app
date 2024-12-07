@@ -3,6 +3,9 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Database\QueryException;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -45,6 +48,25 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        // Custom error handling for database errors
+        $this->renderable(function (QueryException $e, $request) {
+            if ($e->getCode() === '23000') { // Integrity constraint violation
+                if (str_contains($e->getMessage(), 'categories_slug_unique')) {
+                    return back()->withInput()->withErrors(['error' => 'A category with this name already exists. Please choose a different name.']);
+                }
+                // Add more specific database error messages here
+                return back()->withInput()->withErrors(['error' => 'There was an issue saving your data. Please try again.']);
+            }
+        });
+
+        // Custom 404 handling
+        $this->renderable(function (NotFoundHttpException $e, $request) {
+            if ($request->is('admin/*')) {
+                return response()->view('admin.errors.404', [], 404);
+            }
+            return response()->view('errors.404', [], 404);
         });
     }
 }

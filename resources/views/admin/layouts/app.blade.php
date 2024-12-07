@@ -20,27 +20,27 @@
                 <hr>
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ route('admin.dashboard') }}">
+                        <a class="nav-link text-white {{ request()->routeIs('admin.dashboard') ? 'active bg-primary' : '' }}" href="{{ route('admin.dashboard') }}">
                             <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ route('products.index') }}">
+                        <a class="nav-link text-white {{ request()->routeIs('admin.products.*') ? 'active bg-primary' : '' }}" href="{{ route('admin.products.index') }}">
                             <i class="fas fa-box me-2"></i> Products
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ route('categories.index') }}">
+                        <a class="nav-link text-white {{ request()->routeIs('admin.categories.*') ? 'active bg-primary' : '' }}" href="{{ route('admin.categories.index') }}">
                             <i class="fas fa-list me-2"></i> Categories
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ route('orders.index') }}">
+                        <a class="nav-link text-white {{ request()->routeIs('admin.orders.*') ? 'active bg-primary' : '' }}" href="{{ route('admin.orders.index') }}">
                             <i class="fas fa-shopping-cart me-2"></i> Orders
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ route('users.index') }}">
+                        <a class="nav-link text-white {{ request()->routeIs('admin.users.*') ? 'active bg-primary' : '' }}" href="{{ route('admin.users.index') }}">
                             <i class="fas fa-users me-2"></i> Users
                         </a>
                     </li>
@@ -63,11 +63,38 @@
             <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom px-4">
                 <div class="container-fluid">
                     <span>Welcome, {{ Auth::guard('admin')->user()->name }}</span>
+                    <div class="d-flex">
+                        <span class="text-muted me-3">{{ now()->format('l, F j, Y') }}</span>
+                        <form action="{{ route('admin.logout') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </nav>
             @endauth
 
             <div class="p-4">
+                @if(session('success'))
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        {{ session('success') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                @endif
+
                 @yield('content')
             </div>
         </div>
